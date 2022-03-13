@@ -67,6 +67,7 @@
         }
     </style>
     <script type="text/javascript">
+        var page = 1;
         window.onload = onloads
         function onloads() {
             window.addEventListener('keydown', function (e) {
@@ -74,6 +75,7 @@
                     e.preventDefault();
                 } else {
                     window.scrollBy(0, document.getElementById("myRange").value);
+                    document.getElementById("pdfprompt").shadowRoot.getElementById('scroller').scrollBy(0, document.getElementById("myRange").value);
                 }
             });
             var input = document.getElementById("file");
@@ -105,12 +107,15 @@
                 }
                 files = files2;
                 console.log(files);
-                textarea.innerHTML = null;
                 for (let i = 0; i < files.length; i++) {
                     var file = files[i];
                     var end = file.name.toString().substring(file.name.toString().lastIndexOf('.'), file.name.toString().length);
 
                     if (end === ".txt" || end === ".odt") {
+                        var textarea = document.getElementById("txtprompt");
+                        textarea.innerHTML = null;
+                        document.getElementById("pdfprompt").style.display="none";
+                        textarea.style.display ="";
                         let reader = new FileReader();
 
                         reader.onload = (e) => {
@@ -127,6 +132,14 @@
                         reader.onerror = (e) => alert(e.target.error.name);
 
                         reader.readAsText(file);
+                    } else if (end == ".pdf") {
+                        var  preview = document.getElementById("pdfprompt");
+                        document.getElementById("txtprompt").style.display="none";
+                        preview.style.display ="";
+                        preview.innerHTML = null;
+                        preview.style.height = (window.innerHeight-25)+"px";
+                        let fileUrl = URL.createObjectURL(file);
+                        preview.setAttribute("src", fileUrl+"#toolbar=0&navpanes=0&scrollbar=0&view=Fit&zoom=scale");
                     }
                 }
             });
@@ -207,7 +220,7 @@
                 </div>
             </div>
             <div class="col-lg-2">
-                <p><input type="file" id="file" accept=".txt , .odt" multiple="multiple"></p>
+                <p><input type="file" id="file" accept=".txt , .odt , .pdf" multiple="multiple"></p>
             </div>
             <div class="col-lg-1" style="margin-left: 3rem;">
                 <p>White: <input type="checkbox" id="white"></p>
@@ -223,10 +236,14 @@
             </div>
         </div>
         <div style="width: 100%;">
-            <p id="prompt"
+            <p id="txtprompt"
                 style="font-size: 5rem; padding-top: 7rem; width: 100%; padding-left: 5rem; padding-right: 5rem; background-color: transparent; color: #FFFFFF; outline: none; resize: none; border: none; height: 100%;">
 
             </p>
+            <embed id="pdfprompt"
+                style="font-size: 5rem; padding-top: 4rem; width: 100%; background-color: transparent; color: #FFFFFF; outline: none; resize: none; border: none; height: 100%;" type="application/pdf">
+
+        </embed>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
